@@ -2,14 +2,12 @@
 title: "Boone Consumer Complaints"
 author: "Anna Boone"
 date: "5/6/2022"
-output: html_document
----
----
 output:
-  flexdashboard::flex_dashboard: 
+  html_document:
+    df_print: paged
+  flexdashboard::flex_dashboard:
     vertical_layout: scroll
     orientation: columns
-    
 ---
 
 ```{r setup, include=FALSE}
