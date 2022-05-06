@@ -1,0 +1,129 @@
+---
+title: "Boone Consumer Complaints"
+author: "Anna Boone"
+date: "5/6/2022"
+output: html_document
+---
+---
+output:
+  flexdashboard::flex_dashboard: 
+    vertical_layout: scroll
+    orientation: columns
+    
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r}
+library(tidyverse)
+library(janitor)
+library(readxl)
+library(scales)
+library(lubridate)
+library(ggthemes)
+library(esquisse)
+library(flexdashboard)
+library(dplyr)
+library(ggplot2)
+library(scales)
+library(sf)
+library(viridis)
+library(tmap)
+```
+
+```{r}
+complaints <- readRDS("complaints.rds")
+```
+
+{.tabset}
+-----------------------
+
+```{r}
+complaintsby_date <- complaints %>% 
+  mutate(date_week = week(date_received)) %>% 
+  count(date_week) %>% 
+  filter(date_week != 9,
+  date_week != 53)
+  
+```
+
+```{r}
+complaintsby_product <- complaints %>% 
+  count(product) %>% 
+  mutate(product = str_replace(product, "Checking or savings account", "Accounts"),
+         product = str_replace(product, "Credit card or prepaid card", "Cards"),
+         product = str_replace(product, "Credit reporting, credit repair services, or other personal consumer reports", "Credit"),
+         product = str_replace(product, "Debt collection", "Debt"),
+         product = str_replace(product, "Money transfer, virtual currency, or money service", "Currency"),
+         product = str_replace(product, "Payday loan, title loan, or personal loan", "Loans"),
+         product = str_replace(product, "Student loan", "Student Loans"),
+         product = str_replace(product, "Vehicle loan or lease", "Vehicle Loans"))
+  
+```
+
+```{r}
+complaintsby_state <- complaints %>% 
+  count(state) %>% 
+  mutate(state = str_replace(state, "UNITED STATES MINOR OUTLYING ISLANDS", "UM")) 
+```
+
+### Complaints by Date Received
+
+```{r}
+ggplot(complaintsby_date, aes(x= date_week, y= n)) +
+geom_line(color = "red")+
+  geom_point()+
+  labs(title = "Complaints by Date Received", x= "Week of Year", y= "Number of Complaints") 
+```
+
+### Complaints by Product
+
+```{r}
+ggplot(complaintsby_product, aes(x = reorder(product, -n), y = n)) +
+  geom_col(position = "stack", color = "black", fill = "red") +
+  scale_y_continuous(label=comma)+
+  coord_flip()+
+  labs(title = 'Complaints by Product',) +
+  theme_classic() +
+  xlab('Product Type') +
+  ylab('Number of Complaints') +
+  theme(axis.text.x = 
+          element_text(angle = 90, hjust = 1, vjust = 0.5))
+
+```
+
+### Complaints by State
+
+```{r}
+ggplot(complaintsby_state, aes(x = reorder(state,-n), y = n)) +
+  geom_col(position = "stack", color = "black", fill = "red") +
+  scale_y_continuous(label=comma)+
+  labs(title = 'Complaints by State',) +
+  theme_classic() +
+  xlab('State') +
+  ylab('Number of Complaints') +
+  theme(axis.text.x = 
+          element_text(angle = 90, hjust = 1, vjust = 0.5))
+```
+
+###Company Response/ Consumer Consent
+
+```{r}
+complaints %>% 
+  count(consumer_consent_provided)
+```
+
+```{r}
+complaints %>% 
+  count(company_response_to_consumer)
+```
+
+#About Complaints Data
+
+The data used in this analysis comes from the Consumer Financial Protect Bureau, a U.S. government agency that regulates banks, lenders, and other financial companies on behalf of consumers.
+
+The database which updates daily, according to the CFPB website.The data consists of only complaints sent to companies for response, after they are responded to. It is also important to note that this database is not "a statistical sample of consumers' experiences in the marketplace and these complaints are not necessarily representative of all consumers' experiences with a financial product or company," according to the CFPB website.
+
+For my analysis, I processed data on the states from which complaints were received, types of financial products which consumers made complaints about and the time (by week of year) which the complaints were received by companies. I also paired down data to look at the response types from companies and what type, if any, of consent was given by customers for their complaint narrative to be published.
