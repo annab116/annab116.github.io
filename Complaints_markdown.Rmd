@@ -3,11 +3,11 @@ title: "Boone Consumer Complaints"
 author: "Anna Boone"
 date: "5/6/2022"
 output:
-  html_document:
-    df_print: paged
   flexdashboard::flex_dashboard:
     vertical_layout: scroll
     orientation: columns
+  html_document:
+    df_print: paged
 ---
 
 ```{r setup, include=FALSE}
@@ -35,8 +35,7 @@ library(tmap)
 complaints <- readRDS("complaints.rds")
 ```
 
-{.tabset}
------------------------
+##  {.tabset}
 
 ```{r}
 complaintsby_date <- complaints %>% 
@@ -106,7 +105,7 @@ ggplot(complaintsby_state, aes(x = reorder(state,-n), y = n)) +
           element_text(angle = 90, hjust = 1, vjust = 0.5))
 ```
 
-###Company Response/ Consumer Consent
+### Company Response/ Consumer Consent
 
 ```{r}
 complaints %>% 
@@ -118,7 +117,7 @@ complaints %>%
   count(company_response_to_consumer)
 ```
 
-#About Complaints Data
+### About Complaints Data
 
 The data used in this analysis comes from the Consumer Financial Protect Bureau, a U.S. government agency that regulates banks, lenders, and other financial companies on behalf of consumers.
 
